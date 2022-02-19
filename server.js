@@ -10,16 +10,18 @@ const db = mysql.createConnection(
         password: 'test123',
         database: 'employee_cms',
     },
-    console.log('Connecting to the <><>Employee CMS<><> database!')
+    console.log('Connecting to the Employee CMS database!')
 );
-
 db.connect(function (err) {
     if (!err) {
         console.log('  ---  Connection Success!  ---  ');
         appPrompt();
+    } else {
+        throw err;
     }
-    throw err;
+
 });
+
 // THEN I am presented with the following options: 
 // view all departments, 
 // view all roles, 
@@ -28,13 +30,17 @@ db.connect(function (err) {
 // add a role, 
 // add an employee, 
 // and update an employee role
-function appPrompt() {
+
+
+const appPrompt = () => {
     inquirer.prompt([
         {
             type: 'list',
             messsage: 'What would you like to do?',
-            name: 'mainMenuChoice',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
+            name: 'listChoices',
+            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Quit program']
         }
-    ])
-}
+    ]).then((answers) => {
+        console.log(answers.listChoices);
+    });
+};
