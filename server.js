@@ -49,5 +49,19 @@ const appPrompt = () => {
                     appPrompt();
                 })
         }
+        if (answers.listChoices === 'View all roles') {
+            db.query("SELECT * FROM employee_role, department.department_name as 'department';",
+                function (err, results, fields) {
+                    console.table(results);
+                    appPrompt();
+                })
+        }
+        if (answers.listChoices === 'View all employees') {
+            db.query("SELECT * FROM employee;",
+                function (err, results, fields) {
+                    console.table(results);
+                    appPrompt();
+                })
+        }
     });
 };
