@@ -50,14 +50,14 @@ const appPrompt = () => {
                 })
         }
         if (answers.listChoices === 'View all roles') {
-            db.query("SELECT * FROM employee_role, department.department_name as 'department';",
+            db.query("SELECT employee_role.title, department.department_name AS department, employee_role.salary FROM employee_role INNER JOIN department ON employee_role.department_id = department.id;",
                 function (err, results, fields) {
                     console.table(results);
                     appPrompt();
                 })
-        }
+        } //fn ln title dept salary manager
         if (answers.listChoices === 'View all employees') {
-            db.query("SELECT * FROM employee;",
+            db.query(`SELECT employee.first_name, employee.last_name, employee_role.title, department.department_name AS department, employee_role.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN employee_role ON employee.role_id = employee_role.id LEFT JOIN department ON employee_role.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id;`,
                 function (err, results, fields) {
                     console.table(results);
                     appPrompt();
