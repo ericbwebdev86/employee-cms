@@ -42,5 +42,12 @@ const appPrompt = () => {
         }
     ]).then((answers) => {
         console.log(answers.listChoices);
+        if (answers.listChoices === 'View all departments') {
+            db.query("SELECT * FROM department;",
+                function (err, results, fields) {
+                    console.table(results);
+                    appPrompt();
+                })
+        }
     });
 };
