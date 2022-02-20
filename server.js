@@ -63,5 +63,165 @@ const appPrompt = () => {
                     appPrompt();
                 })
         }
+        if (answers.listChoices === 'Add a department') {
+            addDept();
+        }
+        if (answers.listChoices === 'Add a role') {
+            addEmployeeRole();
+        }
+        if (answers.listChoices === 'Add an employee') {
+            addEmployee();
+
+        }
+        if (answers.listChoices === 'Update an employee role') {
+            updateRole();
+        }
     });
 };
+addDept = () => {
+    console.log(`
+    ()()()()()()()()()()()
+    ()  Add Department  ()
+    ()()()()()()()()()()()
+    `)
+    inquirer.prompt([
+
+        {
+            type: 'input',
+            name: 'deptInput',
+            message: 'Please enter the department that you would like to add.',
+            validate: deptInput => {
+                if (deptInput) {
+                    return true;
+                } else {
+                    console.log('please enter a department name')
+                    return false;
+                }
+            }
+        }
+    ]).then(answers => {
+        const sql = `INSERT INTO department (department_name) VALUES (?)`;
+        db.query(sql, answers.deptInput, function (err, results, fields) {
+            appPrompt();
+        })
+    })
+}
+addEmployeeRole = () => {
+    console.log(`
+    ()()()()()()()()()()()()
+    ()      Add Role      ()
+    ()()()()()()()()()()()()
+    `);
+    let department = 'select department.id, department.department_name from department';
+    db.query(department, (err, results) => {
+        deptArray = [];
+
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'roleInput',
+                message: 'Please enter the role that you would like to add.',
+                validate: roleInput => {
+                    if (roleInput) {
+                        return true;
+                    } else {
+                        console.log('please enter the name of the new role')
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'salaryInput',
+                message: 'Please enter the salary for new role.',
+                validate: salaryInput => {
+                    if (salaryInput) {
+                        return true;
+                    } else {
+                        console.log('please enter the salary of the new role')
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'list',
+                name: 'roleDeptInput',
+                message: 'Which department would you like to add it to?',
+                choices: results
+            }
+        ]).then(answers => {
+            const sql = 'INSERT INTO employee_role (title, salary, department_id) VALUES (?, ?, ?)'
+            db.query(sql, [answers.roleInput, answers.salaryInput, answers.roleDeptInput], function (err, results, fields) {
+                appPrompt();
+            })
+        });
+    })
+
+}
+addEmployee = () => {
+    console.log(`
+    ()()()()()()()()()()()
+    ()   Add Employee   ()
+    ()()()()()()()()()()()
+    `)
+    let roles =
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'firstName',
+                message: 'Please enter the first name of the employee',
+                validate: firstName => {
+                    if (firstName) {
+                        return true;
+                    } else {
+                        console.log('please enter the first name of the new employee')
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'lastName',
+                message: 'Please enter the last name of the employee',
+                validate: lastName => {
+                    if (lastName) {
+                        return true;
+                    } else {
+                        console.log('please enter the last name of the employee')
+                        return false;
+                    }
+                }
+            }
+        ]).then(answers => {
+            const sql = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)';
+            db.query(sql, [answers.firstName, answers.lastName, answers.roleID, answers.managerID], function (err, results, fields) {
+                appPrompt();
+            })
+        });
+}
+updateRole = () => {
+    console.log(`
+    ()()()()()()()()()()()
+    ()   Update  Role   ()
+    ()()()()()()()()()()()
+    `)
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employee',
+            message: 'Please select an employee to update',
+            choices: employeeArray
+        },
+        {
+            type: 'list',
+            name: 'role',
+            message: 'Please select a new role for the employee',
+            choices: roleArray
+        }
+    ]).then(answers => {
+        const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+        db.query(sql, [answers.employee, answers.role], function (err, results, fields) {
+            appPrompt();
+        })
+    })
+}
