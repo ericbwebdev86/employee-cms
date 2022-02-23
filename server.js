@@ -191,41 +191,45 @@ addEmployee = () => {
             }
         }
     ]).then(answers => {
-        const newEmployee = [];
-        newEmployee.push(answers.firstName, answers.lastName)
-        let roleQuery = 'SELECT role.id, role.title from employee_role'
+        const newEmployee = [answers.firstName, answers.lastName];
+        let roleQuery = 'SELECT employee_role.id, employee_role.title from employee_role'
         db.query(roleQuery, (err, results) => {
-            let roleArray = results.map({ id, title });
+            const roleArray = results.map(({ id, title }) => ({ name: title, value: id }));
+
             inquirer.prompt([
                 {
                     type: 'list',
                     name: 'roleChoice',
-                    message: 'Please enter the role of the new employee',
+                    message: 'Please select a role for the new employee',
                     choices: roleArray
                 }
-            ])
-        })
-    })
-        .then(answers => {
-            newEmployee.push(answers.roleChoice);
-            const getManager = 'SELECT * FROM employee';
-            db.query(getManager, function (err, results) {
+            ]).then(answers => {
+            let role = answers.roleChoice;
+            newEmployee.push(role);
+            const mgrQuery = 'SELECT * FROM employee';
+            db.query(mgrQuery, function (err, results) {
+                mgrArray = results.map(({ id, first_name, last_name }) => ({name: first_name + " " + last_name, value: id }));
                 inquirer.prompt([
                     {
                         type: 'list',
                         name: 'mgrChoice',
                         message: 'Please select a manager for the new employee',
-                        choices: results
+                        choices: mgrArray
                     }
-                ])
-            })
-        }).then(answers => {
-            newEmployee.push(answers.mgrChoice);
+                ]).then(answers => {
+            let manager = answers.mgrChoice
+            newEmployee.push(manager);
             const sql = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)';
-            db.query(sql, newEmployee[0], newEmployee[1], newEmployee[2], newEmployee[3], function (err, results, fields) {
+            db.query(sql, newEmployee, function (err, results, fields) {
                 appPrompt();
+                // newEmployee[0], newEmployee[1], newEmployee[2], newEmployee[3]
             })
         })
+            })
+        })
+        })
+    })
+        
 }
 updateEmployeeRole = () => {
     console.log(`
