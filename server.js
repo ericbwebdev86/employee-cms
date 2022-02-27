@@ -222,7 +222,6 @@ addEmployee = () => {
             const sql = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)';
             db.query(sql, newEmployee, function (err, results, fields) {
                 appPrompt();
-                // newEmployee[0], newEmployee[1], newEmployee[2], newEmployee[3]
             })
         })
             })
@@ -237,31 +236,40 @@ updateEmployeeRole = () => {
     ()   Update  Role   ()
     ()()()()()()()()()()()
     `)
-    const getEmployeeSQL = 'SELECT * FROM employee';
-    db.query(getEmployeeSQL, (err, results) => {
+    const employeeQuery = 'SELECT * FROM employee';
+    db.query(employeeQuery, (err, results) => {
+        employeeArray = results.map(({ id, first_name, last_name }) => ({name: first_name + " " + last_name, value: id }));
         inquirer.prompt([
             {
                 type: 'list',
                 name: 'employee',
                 message: 'Please select an employee to update',
-                choices: results
+                choices: employeeArray
             }])
             .then(answers => {
-                updateEmp = [];
-                updateEmp.push(answers.employee)
+                let selectedEmployee = answers.employee;
+                const queryValues = [];
+                queryValues.push(selectedEmployee);
                 const sql = `SELECT * FROM employee_role`;
-                db.query(sql, function (err, results, fields) {
+                db.query(sql, function (err, results) {
+                    const roleArray = results.map(({ id, title }) => ({ name: title, value: id }));
                     inquirer.prompt([
                         {
                             type: 'list',
                             name: 'role',
                             message: 'Please select a role to assign to the employee',
-                            choices: results
+                            choices: roleArray
                         }
                     ]).then(answers => {
-                        updateEmp.push(answers.role);
+                        let selectedRole = answers.role;
+                        queryValues.push(selectedRole);
+                        console.log(queryValues);
+                        queryValues[0] = selectedRole;
+                        queryValues[1] = selectedEmployee;
                         const updateRole = 'UPDATE employee SET role_id = ? WHERE id = ?';
-                        db.query(updateRole, updateEmp[1], updateEmp[0], (err, results) => {
+                        db.query(updateRole, queryValues, (err, results) => {
+                            console.log(results);
+                            console.log('line 269', queryValues);
                             appPrompt();
                         })
                     })
