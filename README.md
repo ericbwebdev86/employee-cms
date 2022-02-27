@@ -20,7 +20,9 @@
   
 
   ## Usage
-  employee-cms is a content management system that allows the user to manage a database of employees, departments, and roles.
+  employee-cms is a content management system that allows the user to manage a database of employees, departments, and roles. After completing the installation, it can be run by executing:
+
+  node server
 
   [Link to the demo video](https://youtu.be/tWRzxcnCEQY)
 
